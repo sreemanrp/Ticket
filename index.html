@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>irl Ticket</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Brass+Mono:wght@400;500&display=swap');
+    body {
+      background-color: black;
+      color: white;
+      font-family: 'Brass Mono', monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    #loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #loading p {
+      display: flex;
+      align-items: center;
+    }
+
+    #loading .loading-dot {
+      width: 8px;
+      height: 8px;
+      background-color: white;
+      border-radius: 50%;
+      margin-left: 5px;
+      animation: loading-dot 1s infinite alternate;
+    }
+
+    @keyframes loading-dot {
+      0% {
+        opacity: 0.2;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    #loading .loading-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    #loading .loading-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    #content {
+      display: none;
+      width: 80%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    #ticket-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    #ticket-header h1 {
+      margin: 0;
+      margin-right: 10px;
+      font-size: 1rem;
+      font-weight: normal;
+    }
+
+    #ticket-number {
+      color: #3291ff;
+    }
+
+    input[type="text"] {
+      background-color: black;
+      color: white;
+      border: 1px solid white;
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 50px;
+      font-family: 'Brass Mono', monospace;
+    }
+
+    #submitted-message {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #support-email {
+      color: #A1A1A1;
+      display: none;
+    }
+
+    #ticket-info {
+      margin-top: 20px;
+      border: 1px solid white;
+      border-radius: 50px;
+      padding: 10px;
+      display: none;
+    }
+
+    #ticket-info p {
+      margin: 0;
+    }
+
+    #ticket-info strong {
+      font-weight: normal;
+    }
+
+    #ticket-info span {
+      color: #3291ff;
+    }
+
+    #email-error {
+      color: #ff3333;
+      display: none;
+    }
+
+    #github-links {
+      display: none;
+    }
+
+    #github-links a {
+      color: #A1A1A1;
+      margin: 0 5px;
+      text-decoration: none;
+    }
+
+    #ticket-count {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      color: #50e3c2;
+      display: none;
+    }
+
+    #screen-size-error {
+      color: #ff3333; 
+      display: none;
+      text-align: center;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="ticket-count"></div>
+  <div id="screen-size-error">
+    <p>Sorry for the inconvenience!</p>
+    <p>This website is currently optimized for smaller screens.</p> 
+    <p>Please access it from your mobile or tablet.</p>
+  </div>
+
+  <div id="loading">
+    <p>Loading
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+    </p>
+  </div>
+
+  <div id="content">
+    <div id="ticket-header">
+      <h1>Ticket</h1>
+      <span id="ticket-number">#1</span>
+    </div>
+
+    <input type="text" id="name" placeholder="Your Full Name" autofocus>
+    <input type="text" id="email" placeholder="Your Email ID" style="display: none;">
+    <div id="email-error">Please enter a valid email address.</div>
+    <input type="text" id="reason" placeholder="Reason for Contact" style="display: none;">
+
+    <p id="submitted-message" style="display: none;">Your response was submitted. Our team will contact you as soon as possible.</p>
+
+    <div id="ticket-info">
+      <p><strong>Ticket</strong> <span id="submitted-ticket-number"></span></p>
+    </div>
+
+    <p><a href="mailto:support@def.co" id="support-email">support@def.co</a></p>
+
+    <div id="github-links">
+      <a href="https://github.com/sreemanrp/ticket/bugs">bug</a> • 
+      <a href="https://github.com/sreemanrp/ticket/fork">fork</a>
+    </div>
+  </div>
+
+  <script>
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const reasonInput = document.getElementById('reason');
+    const submittedMessage = document.getElementById('submitted-message');
+    const loading = document.getElementById('loading');
+    const content = document.getElementById('content');
+    const ticketNumber = document.getElementById('ticket-number');
+    const ticketHeader = document.getElementById('ticket-header');
+    const ticketInfo = document.getElementById('ticket-info');
+    const submittedTicketNumber = document.getElementById('submitted-ticket-number');
+    const emailError = document.getElementById('email-error');
+    const githubLinks = document.getElementById('github-links');
+    const ticketCountDisplay = document.getElementById('ticket-count');
+    const screenSizeError = document.getElementById('screen-size-error');
+
+    let ticketCount = localStorage.getItem('ticketCount') || 1;
+    ticketNumber.textContent = `#${ticketCount}`;
+
+    function updateTicketCountDisplay() {
+      ticketCountDisplay.textContent = `Tickets Raised: ${ticketCount - 1}`;
+    }
+    updateTicketCountDisplay();
+
+    if (window.innerWidth > 768) {
+      screenSizeError.style.display = 'block';
+      loading.style.display = 'none';
+      content.style.display = 'none';
+    } else {
+      setTimeout(() => {
+        loading.style.display = 'none';
+        content.style.display = 'block';
+        nameInput.focus();
+        ticketCountDisplay.style.display = 'block';
+      }, 2000);
+    }
+
+    nameInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === 'Return') {
+        nameInput.style.display = 'none';
+        emailInput.style.display = 'block';
+        emailInput.focus();
+      }
+    });
+
+    emailInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === 'Return') {
+        const email = emailInput.value;
+        if (email.includes('@') && email.includes('.')) {
+          emailInput.style.display = 'none';
+          reasonInput.style.display = 'block';
+          reasonInput.focus();
+          emailError.style.display = 'none';
+        } else {
+          emailError.style.display = 'block';
+        }
+      }
+    });
+
+    reasonInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === 'Return') {
+        reasonInput.style.display = 'none';
+        submittedMessage.style.display = 'block';
+        ticketHeader.style.display = 'none';
+        ticketInfo.style.display = 'block';
+        document.getElementById('support-email').style.display = 'block';
+        githubLinks.style.display = 'block';
+
+        submittedTicketNumber.textContent = `#${ticketCount}`;
+
+        ticketCount++;
+        localStorage.setItem('ticketCount', ticketCount);
+        updateTicketCountDisplay();
+
+        // Send data to your server-side script
+        fetch('/submit', { // Update the URL if your server is on a different port/domain
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: nameInput.value,
+            email: emailInput.value,
+            reason: reasonInput.value
+          })
+        })
+        .then(response => {
+          console.log(response.text());
+        })
+        .catch(error => {
+          console.error('Error submitting form:', error);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
